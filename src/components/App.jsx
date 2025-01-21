@@ -7,6 +7,32 @@ import fetchPokemon from "../fetchPokemon.js";
 
 function App() {
   const [pokemon, setPokemon] = useState([]);
+  const inParty = pokemon.filter((p) => p.is_in_party);
+  const notInParty = pokemon.filter((p) => !p.is_in_party);
+
+  function addToParty(id) {
+    setPokemon(
+      pokemon.map((p) => {
+        if (p.id === id) {
+          return { ...p, is_in_party: true };
+        } else {
+          return p;
+        }
+      })
+    );
+  }
+
+  function removeFromParty(id) {
+    setPokemon(
+      pokemon.map((p) => {
+        if (p.id === id) {
+          return { ...p, is_in_party: false };
+        } else {
+          return p;
+        }
+      })
+    );
+  }
 
   useEffect(() => {
     fetchPokemon().then(setPokemon);
@@ -14,8 +40,13 @@ function App() {
 
   return (
     <>
-      <Header />
-      <Main pokemon={pokemon} />
+      <Header partySize={inParty.length} />
+      <Main
+        inParty={inParty}
+        notInParty={notInParty}
+        addToParty={addToParty}
+        removeFromParty={removeFromParty}
+      />
     </>
   );
 }

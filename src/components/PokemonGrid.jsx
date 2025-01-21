@@ -6,7 +6,12 @@ function PokemonGrid(props) {
     <>
       {props.pokemon.map((p) => (
         <Col key={p.name}>
-          <PokemonCard pokemon={p} />
+          <PokemonCard
+            pokemon={p}
+            partySize={props.partySize}
+            addToParty={props.addToParty}
+            removeFromParty={props.removeFromParty}
+          />
         </Col>
       ))}
     </>
