@@ -1,41 +1,60 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 import Header from "./Header.jsx";
 import Main from "./Main.jsx";
 
 import fetchPokemon from "../fetchPokemon.js";
 
+function pokemonReducer(pokemon, action) {
+  if (action.type === "loaded") {
+    return action.data;
+  } else if (action.type === "added") {
+    return pokemon.map((p) => {
+      if (p.id === action.id) {
+        return { ...p, is_in_party: true };
+      } else {
+        return p;
+      }
+    });
+  } else if (action.type === "removed") {
+    return pokemon.map((p) => {
+      if (p.id === action.id) {
+        return { ...p, is_in_party: false };
+      } else {
+        return p;
+      }
+    });
+  } else {
+    throw new RangeError(`Unknown action: ${action.type}`);
+  }
+}
+
 function App() {
-  const [pokemon, setPokemon] = useState([]);
+  const [pokemon, dispatch] = useReducer(pokemonReducer, []);
   const inParty = pokemon.filter((p) => p.is_in_party);
   const notInParty = pokemon.filter((p) => !p.is_in_party);
 
   function addToParty(id) {
-    setPokemon(
-      pokemon.map((p) => {
-        if (p.id === id) {
-          return { ...p, is_in_party: true };
-        } else {
-          return p;
-        }
-      })
-    );
+    dispatch({
+      type: "added",
+      id: id,
+    });
   }
 
   function removeFromParty(id) {
-    setPokemon(
-      pokemon.map((p) => {
-        if (p.id === id) {
-          return { ...p, is_in_party: false };
-        } else {
-          return p;
-        }
-      })
-    );
+    dispatch({
+      type: "removed",
+      id: id,
+    });
   }
 
   useEffect(() => {
-    fetchPokemon().then(setPokemon);
+    fetchPokemon().then((data) => {
+      dispatch({
+        type: "loaded",
+        data: data,
+      });
+    });
   }, []);
 
   return (
