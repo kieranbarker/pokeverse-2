@@ -1,9 +1,10 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer } from "react";
 
 import Header from "./Header.jsx";
 import Main from "./Main.jsx";
 
 import fetchPokemon from "../fetchPokemon.js";
+import { PokemonContext, PokemonDispatchContext } from "../PokemonContext.js";
 
 function pokemonReducer(pokemon, action) {
   if (action.type === "loaded") {
@@ -34,20 +35,6 @@ function App() {
   const inParty = pokemon.filter((p) => p.is_in_party);
   const notInParty = pokemon.filter((p) => !p.is_in_party);
 
-  function addToParty(id) {
-    dispatch({
-      type: "added",
-      id: id,
-    });
-  }
-
-  function removeFromParty(id) {
-    dispatch({
-      type: "removed",
-      id: id,
-    });
-  }
-
   useEffect(() => {
     fetchPokemon().then((data) => {
       dispatch({
@@ -58,15 +45,12 @@ function App() {
   }, []);
 
   return (
-    <>
-      <Header partySize={inParty.length} />
-      <Main
-        inParty={inParty}
-        notInParty={notInParty}
-        addToParty={addToParty}
-        removeFromParty={removeFromParty}
-      />
-    </>
+    <PokemonContext.Provider value={{ inParty, notInParty }}>
+      <PokemonDispatchContext.Provider value={dispatch}>
+        <Header />
+        <Main />
+      </PokemonDispatchContext.Provider>
+    </PokemonContext.Provider>
   );
 }
 
